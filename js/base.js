@@ -24,6 +24,139 @@ Element.prototype.toggleClassName = function (a) {
 	this[this.hasClassName(a) ? "removeClassName" : "addClassName"](a);
 };
 
+
+
+// ========================= getStyleProperty by kangax ===============================
+// http://perfectionkills.com/feature-testing-css-properties/
+
+var getStyleProperty = (function(){
+
+  var prefixes = ['Moz', 'Webkit', 'Khtml', 'O', 'Ms'];
+
+  function getStyleProperty(propName, element) {
+    element = element || document.documentElement;
+    var style = element.style,
+        prefixed;
+
+    // test standard property first
+    if (typeof style[propName] == 'string') return propName;
+
+    // capitalize
+    propName = propName.charAt(0).toUpperCase() + propName.slice(1);
+
+    // test vendor specific properties
+    for (var i=0, l=prefixes.length; i<l; i++) {
+      prefixed = prefixes[i] + propName;
+      if (typeof style[prefixed] == 'string') return prefixed;
+    }
+  }
+
+  return getStyleProperty;
+})();
+
+var transformProp = getStyleProperty('transform');
+
+// ========================= miniModernizr ===============================
+// <3<3<3 and thanks to Faruk and Paul for doing the heavy lifting
+
+/*!
+ * Modernizr v1.6ish: miniModernizr for Isotope
+ * http://www.modernizr.com
+ *
+ * Developed by: 
+ * - Faruk Ates  http://farukat.es/
+ * - Paul Irish  http://paulirish.com/
+ *
+ * Copyright (c) 2009-2010
+ * Dual-licensed under the BSD or MIT licenses.
+ * http://www.modernizr.com/license/
+ */
+
+
+/*
+ * This version whittles down the script just to check support for
+ * CSS transitions, transforms, and 3D transforms.
+*/
+
+var docElement = document.documentElement,
+    vendorCSSPrefixes = ' -o- -moz- -ms- -webkit- -khtml- '.split(' '),
+    tests = [
+      {
+        name : 'csstransforms',
+        getResult : function() {
+          return !!transformProp;
+        }
+      },
+      {
+        name : 'csstransforms3d',
+        getResult : function() {
+          var test = !!getStyleProperty('perspective');
+          // double check for Chrome's false positive
+          if ( test ){
+            var st = document.createElement('style'),
+                div = document.createElement('div'),
+                mq = '@media (' + vendorCSSPrefixes.join('transform-3d),(') + 'modernizr)';
+
+            st.textContent = mq + '{#modernizr{height:3px}}';
+            (document.head || document.getElementsByTagName('head')[0]).appendChild(st);
+            div.id = 'modernizr';
+            docElement.appendChild(div);
+
+            test = div.offsetHeight === 3;
+
+            st.parentNode.removeChild(st);
+            div.parentNode.removeChild(div);
+          }
+          return !!test;
+        }
+      },
+      {
+        name : 'csstransitions',
+        getResult : function() {
+          return !!getStyleProperty('transitionProperty');
+        }
+      }
+    ],
+
+    i, len = tests.length
+;
+
+if ( window.Modernizr ) {
+  // if there's a previous Modernzir, check if there are necessary tests
+  for ( i=0; i < len; i++ ) {
+    var test = tests[i];
+    if ( !Modernizr.hasOwnProperty( test.name ) ) {
+      // if test hasn't been run, use addTest to run it
+      Modernizr.addTest( test.name, test.getResult );
+    }
+  }
+} else {
+  // or create new mini Modernizr that just has the 3 tests
+  window.Modernizr = (function(){
+
+    var miniModernizr = {
+          _version : '1.6ish: miniModernizr for Isotope'
+        },
+        classes = [],
+        test, result, className;
+
+    // Run through tests
+    for ( i=0; i < len; i++ ) {
+      test = tests[i];
+      result = test.getResult();
+      miniModernizr[ test.name ] = result;
+      className = ( result ?  '' : 'no-' ) + test.name;
+      classes.push( className );
+    }
+
+    // Add the new classes to the <html> element.
+    docElement.className += ' ' + classes.join( ' ' );
+
+    return miniModernizr;
+  })();
+}
+
+
 // ======================= Global namespace ===================== //
 
 var MKT = {};
@@ -33,6 +166,14 @@ MKT.isTouch = !!('createTouch' in document);
 MKT.cursorStartEvent = MKT.isTouch ? 'touchstart' : 'mousedown';
 MKT.cursorMoveEvent = MKT.isTouch ? 'touchmove' : 'mousemove';
 MKT.cursorEndEvent = MKT.isTouch ? 'touchend' : 'mouseup';
+
+// ======================= Global namespace ===================== //
+
+MLT.positionAbs = function()
+
+MKT.position( elem, x, y ) {
+	
+}
 
 // ======================= EventHandler ======================= //
 
@@ -106,8 +247,10 @@ MKT.Swapper.prototype.startDrag = function(event) {
 	this.dragger.offsetX = cursor.clientX - this.draggingPlayer.offsetLeft;
 	this.dragger.offsetY = cursor.clientY - this.draggingPlayer.offsetTop;
 	
+	this.playerRect = this.draggingPlayer.getBoundingClientRect();
+	
 	this.dragger.element.innerHTML = this.draggingPlayer.innerHTML;
-	this.dragger.element.style.width = this.draggingPlayer.getBoundingClientRect().width + 'px';
+	this.dragger.element.style.width = this.playerRect.width + 'px';
 	this.dragger.element.style.left = this.draggingPlayer.offsetLeft + 'px';
 	this.dragger.element.style.top = this.draggingPlayer.offsetTop + 'px';
 
@@ -136,9 +279,8 @@ MKT.Swapper.prototype.dragRacer = function(event) {
 
 	// check drop tragets
 	var dragEl = this.dragger.element,
-			draggerRect = dragEl.getBoundingClientRect(),
-			draggerX = this.dragger.element.offsetLeft + draggerRect.width / 2,
-			draggerY = this.dragger.element.offsetTop + draggerRect.height / 2,
+			draggerX = this.dragger.element.offsetLeft + this.playerRect.width / 2,
+			draggerY = this.dragger.element.offsetTop + this.playerRect.height / 2,
 			hasTarget = false;
 	
 	for(var i = 0, len = this.players.length; i < len; i++) {
@@ -148,9 +290,9 @@ MKT.Swapper.prototype.dragRacer = function(event) {
 		if (
 			player !== this.draggingPlayer &&
 			draggerX > player.offsetLeft + 1 &&
-			draggerX < player.offsetLeft + draggerRect.width - 1 &&
+			draggerX < player.offsetLeft + this.playerRect.width - 1 &&
 			draggerY > player.offsetTop + 1 &&
-			draggerY < player.offsetTop + draggerRect.height - 1
+			draggerY < player.offsetTop + this.playerRect.height - 1
 		) {
 			// remove previous droptarget
 			this.clearDropTarget();
@@ -258,7 +400,7 @@ MKT.Swapper.prototype.animateTo = function( element, target, callback ) {
 		if ( callback ) {
 			callback();
 		}
-		console.log( 'trans ended', event.target );
+		// console.log( 'trans ended', event.target );
 		event.target.style.display = 'none';
 		event.target.removeClassName('animating');
 		event.target.removeEventListener( 'webkitTransitionEnd', self, false );

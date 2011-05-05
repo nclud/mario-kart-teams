@@ -124,50 +124,30 @@ MKT.Swapper.prototype.dragRacer = function(event) {
 	this.dragger.element.style.left = cursor.clientX - this.dragger.offsetX + 'px';
 	this.dragger.element.style.top = cursor.clientY - this.dragger.offsetY + 'px';
 
-	this.checkDropTarget();
-};
-
-
-MKT.Swapper.prototype.checkDropTarget = function() {
 	this.clearTargets();
 	
-	var possibleTargets = [];
-	var largestTarget = {
-		element: null,
-		area: 0
-	};
-
+	// check drop tragets
 	var dragEl = this.dragger.element,
-			draggerRect = dragEl.getBoundingClientRect();
+			draggerRect = dragEl.getBoundingClientRect(),
+			draggerX = this.dragger.element.offsetLeft + draggerRect.width / 2,
+			draggerY = this.dragger.element.offsetTop + draggerRect.height / 2;
 	
 	for(var i = 0, len = this.players.length; i < len; i++) {
 		var player = this.players[i];
-		var itemDistanceX = dragEl.offsetLeft - player.offsetLeft + draggerRect.width;
-		var itemDistanceY = dragEl.offsetTop - player.offsetTop + draggerRect.height;
-		var playerRect = player.getBoundingClientRect();
 		
-		if(itemDistanceX > 0 && itemDistanceX <= playerRect.width * 2) {
-			if(itemDistanceY > 0 && itemDistanceY <= playerRect.height * 2) {
-				possibleTargets.push(player);
+		// if dragger falls inside droppable target
+		if (
+			draggerX > player.offsetLeft + 1 &&
+			draggerX < player.offsetLeft + draggerRect.width - 1 &&
+			draggerY > player.offsetTop + 1 &&
+			draggerY < player.offsetTop + draggerRect.height - 1
+		) {
+			if ( player.id !== 'dragging' ) {
+				player.id = 'drag-target';
+				break;
 			}
 		}
-	}
-	
-	for(var j = 0; j < possibleTargets.length; j++) {
-		var target = possibleTargets[j];
-		var targetRect = possibleTargets[j].getBoundingClientRect();
-		var overlapX = targetRect.width - Math.abs(target.offsetLeft - this.dragger.element.offsetLeft);
-		var overlapY = targetRect.height - Math.abs(target.offsetTop - this.dragger.element.offsetTop);
-		var overlapArea = overlapX * overlapY;
-		if(overlapArea > largestTarget.area) {
-			largestTarget = {
-				element: target,
-				area: overlapArea
-			};
-		}
-	}
-	if(largestTarget.element && largestTarget.element.id != 'dragging') {
-		largestTarget.element.id = 'drag-target';
+		
 	}
 };
 

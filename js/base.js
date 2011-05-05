@@ -125,7 +125,7 @@ MKT.Swapper.prototype.dragRacer = function(event) {
 
 
 MKT.Swapper.prototype.checkDropTarget = function() {
-	// clearTargets();
+	this.clearTargets();
 	
 	var possibleTargets = [];
 	var largestTarget = {
@@ -145,7 +145,7 @@ MKT.Swapper.prototype.checkDropTarget = function() {
 		if(itemDistanceX > 0 && itemDistanceX <= playerRect.width * 2) {
 			if(itemDistanceY > 0 && itemDistanceY <= playerRect.height * 2) {
 				possibleTargets.push(player);
-			}			
+			}
 		}
 	}
 	
@@ -165,7 +165,20 @@ MKT.Swapper.prototype.checkDropTarget = function() {
 	if(largestTarget.element && largestTarget.element.id != 'dragging') {
 		largestTarget.element.id = 'drag-target';
 	}
-}
+};
+
+
+MKT.Swapper.prototype.clearTargets = function() {
+	if(document.getElementById('drag-target')) {
+		document.getElementById('drag-target').id = '';
+	}
+	var peeps = document.getElementsByTagName('li');
+	for(var i = 0; i < peeps.length; i++) {
+		if(peeps[i].id != 'dragging') {
+			peeps[i].style.opacity = 1;
+		}
+	}
+};
 
 
 // =======================  ======================= //
@@ -202,18 +215,6 @@ function endDrag(e) {
 }
 
 
-
-function clearTargets() {
-	if(document.getElementById('drag-target')) {
-		document.getElementById('drag-target').id = '';
-	}
-	var peeps = document.getElementsByTagName('li');
-	for(var i = 0; i < peeps.length; i++) {
-		if(peeps[i].id != 'dragging') {
-			peeps[i].style.opacity = 1;
-		}
-	}
-}
 
 function stopDrag(e) {
 	document.removeEventListener('mousemove', dragRacer);

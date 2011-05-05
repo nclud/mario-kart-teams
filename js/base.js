@@ -49,20 +49,59 @@ MKT.EventHandler.prototype.handleEvent = function( event ) {
 
 MKT.Swapper = function ( players ) {
 
+	this.isDragging = false;
+	
+	// this.dragger = document.createElement('div');
+	// this.dragger.id = 'dragger';
+
+	// add listeners for movement
 	for (var i=0, len = players.length; i < len; i++) {
 		players[i].addEventListener( MKT.cursorStartEvent, this, false);
 	}
 
 };
 
+// pass in event handler
 MKT.Swapper.prototype = new MKT.EventHandler();
 
 MKT.Swapper.prototype.handleMousedown = function(event) {
 	this.startDrag(event);
 };
 
-MKT.Swapper.prototype.startDrag = function(event) {
-	console.log( 'starting drag' );
+var dragger;
+
+MKT.Swapper.prototype.startDrag = function(e) {
+	// don't proceed if already dragging
+	if ( this.isDragging ) {
+		// return;
+	}
+	console.log( 'start dragging' );
+	
+	e.preventDefault();
+	dragger = {
+		element: document.createElement('div'),
+		originElement: e.currentTarget,
+		offsetX: e.touches ? e.touches[0].clientX - e.currentTarget.offsetLeft : e.clientX - e.currentTarget.offsetLeft,
+		offsetY: e.touches ? e.touches[0].clientY - e.currentTarget.offsetTop : e.clientY - e.currentTarget.offsetTop
+	};
+	dragger.element.id = 'dragger';
+	dragger.element.innerHTML = e.target.innerHTML;
+	dragger.element.style.width = e.target.getBoundingClientRect().width + 'px';
+	dragger.element.style.left = e.currentTarget.offsetLeft + 'px';
+	dragger.element.style.top = e.currentTarget.offsetTop + 'px';
+	e.currentTarget.id = 'dragging';
+	var bodyElement = document.getElementsByTagName('body')[0];
+	bodyElement.appendChild(dragger.element);
+	document.addEventListener('mousemove', dragRacer, false);
+	document.addEventListener('mouseup', stopDrag, false);
+	document.addEventListener('touchmove', dragRacer, false);
+	document.addEventListener('touchend', stopDrag, false);
+	
+	
+	this.isDragging = true;
+	// console.log( 'starting drag' );
+	
+	
 }
 
 
@@ -100,28 +139,6 @@ function addNewRace(e) {
 
 function closeRaceForm(e) {
 	document.getElementById('race-form-modal').style.display = 'none';
-}
-
-function startDrag(e) {
-	e.preventDefault();
-	dragger = {
-		element: document.createElement('div'),
-		originElement: e.currentTarget,
-		offsetX: e.touches ? e.touches[0].clientX - e.currentTarget.offsetLeft : e.clientX - e.currentTarget.offsetLeft,
-		offsetY: e.touches ? e.touches[0].clientY - e.currentTarget.offsetTop : e.clientY - e.currentTarget.offsetTop
-	};
-	dragger.element.id = 'dragger';
-	dragger.element.innerHTML = this.innerHTML;
-	dragger.element.style.width = this.getBoundingClientRect().width + 'px';
-	dragger.element.style.left = e.currentTarget.offsetLeft + 'px';
-	dragger.element.style.top = e.currentTarget.offsetTop + 'px';
-	e.currentTarget.id = 'dragging';
-	var bodyElement = document.getElementsByTagName('body')[0];
-	bodyElement.appendChild(dragger.element);
-	document.addEventListener('mousemove', dragRacer, false);
-	document.addEventListener('mouseup', stopDrag, false);
-	document.addEventListener('touchmove', dragRacer, false);
-	document.addEventListener('touchend', stopDrag, false);
 }
 
 function endDrag(e) {

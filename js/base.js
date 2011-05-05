@@ -1,19 +1,97 @@
+// ======================= DOM Utility Functions from PastryKit =============================== //
+
+// Sure, we could use jQuery or XUI for these, 
+// but these are concise and will work with plain vanilla JS
+
+Element.prototype.hasClassName = function (a) {
+	return new RegExp("(?:^|\\s+)" + a + "(?:\\s+|$)").test(this.className);
+};
+
+Element.prototype.addClassName = function (a) {
+	if (!this.hasClassName(a)) {
+		this.className = [this.className, a].join(" ");
+	}
+};
+
+Element.prototype.removeClassName = function (b) {
+	if (this.hasClassName(b)) {
+		var a = this.className;
+		this.className = a.replace(new RegExp("(?:^|\\s+)" + b + "(?:\\s+|$)", "g"), " ");
+	}
+};
+
+Element.prototype.toggleClassName = function (a) {
+	this[this.hasClassName(a) ? "removeClassName" : "addClassName"](a);
+};
+
+// ======================= Global namespace ===================== //
+
+var MKT = {};
+
+// Event names
+MKT.isTouch = !!('createTouch' in document);
+MKT.cursorStartEvent = MKT.isTouch ? 'touchstart' : 'mousedown';
+MKT.cursorMoveEvent = MKT.isTouch ? 'touchmove' : 'mousemove';
+MKT.cursorEndEvent = MKT.isTouch ? 'touchend' : 'mouseup';
+
+// ======================= EventHandler ======================= //
+
+MKT.EventHandler = function() {};
+
+MKT.EventHandler.prototype.handleEvent = function( event ) {
+	 var handlerName = 'handle' + event.type.charAt(0).toUpperCase() + event.type.substr(1);
+	 if ( this[ handlerName ] ) {
+		this[ handlerName ](event);
+	}
+};
+
+// ======================= Swapper ======================= //
+
+MKT.Swapper = function ( players ) {
+
+	for (var i=0, len = players.length; i < len; i++) {
+		players[i].addEventListener( MKT.cursorStartEvent, this, false);
+	}
+
+};
+
+MKT.Swapper.prototype = new MKT.EventHandler();
+
+MKT.Swapper.prototype.handleMousedown = function(event) {
+	this.startDrag(event);
+};
+
+MKT.Swapper.prototype.startDrag = function(event) {
+	console.log( 'starting drag' );
+}
+
+
+
+
+// =======================  ======================= //
+
 var raceData;
 var dragger;
 
 document.addEventListener('DOMContentLoaded', init, false);
 
+ 
+
 function init() {
 	dragger = {};
 	
-	document.getElementById('new-race-btn').addEventListener('click', addNewRace, false);
-	document.getElementById('close-btn').addEventListener('click', closeRaceForm, false);
+	var players = document.getElementsByTagName('li');
 	
-	var peeps = document.getElementsByTagName('li');
-	for(var i = 0; i < peeps.length; i++) {
-		peeps[i].addEventListener('mousedown', startDrag, false);
-		peeps[i].addEventListener('touchstart', startDrag, false);
-	}
+	var swapper = new MKT.Swapper( players );
+	
+  // document.getElementById('new-race-btn').addEventListener('click', addNewRace, false);
+  // document.getElementById('close-btn').addEventListener('click', closeRaceForm, false);
+  // 
+  // 
+  // for(var i = 0; i < peeps.length; i++) {
+  //  peeps[i].addEventListener('mousedown', startDrag, false);
+  //  peeps[i].addEventListener('touchstart', startDrag, false);
+  // }
 }
 
 function addNewRace(e) {

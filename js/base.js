@@ -56,6 +56,7 @@ MKT.Swapper = function ( players ) {
 		element : document.createElement('div')
 	};
 	this.dragger.element.id = 'dragger';
+	this.dragger.element.style.display = 'none';
 	document.body.appendChild( this.dragger.element );
 	
 
@@ -80,9 +81,12 @@ MKT.Swapper.prototype.handleTouchstart = function(event) {
 MKT.Swapper.prototype.startDrag = function(event) {
 	// don't proceed if already dragging
 	if ( this.isDragging ) {
-		// return;
+		return;
 	}
 	console.log( 'start dragging' );
+	
+	
+	this.dragger.element.style.display = 'block';
 	
 	event.preventDefault();
 	var cursor = MKT.isTouch ? event.touches[0] : event;
@@ -109,7 +113,7 @@ MKT.Swapper.prototype.handleMousemove = function(event) {
 	this.dragRacer(event);
 };
 
-MKT.Swapper.prototype.handleMousemove = function(event) {
+MKT.Swapper.prototype.handleTouchmove = function(event) {
 	this.dragRacer(event);
 };
 
@@ -181,6 +185,102 @@ MKT.Swapper.prototype.clearTargets = function() {
 };
 
 
+MKT.Swapper.prototype.handleMouseup = function(event) {
+	this.stopDrag(event);
+};
+
+MKT.Swapper.prototype.handleTouchend = function(event) {
+	this.stopDrag(event);
+};
+
+
+MKT.Swapper.prototype.stopDrag = function(e) {
+	console.log( 'stopping drag' );
+	document.removeEventListener( MKT.cursorEndEvent, this, false);
+	if(document.getElementById('drag-target')) {
+		var dummyElement = document.createElement('div');
+		dummyElement.id = 'dummy-element';
+		dummyElement.style.width = document.getElementById('drag-target').getBoundingClientRect().width + 'px';
+		dummyElement.style.top = document.getElementById('drag-target').offsetTop + 'px';
+		dummyElement.style.left = document.getElementById('drag-target').offsetLeft + 'px';
+		dummyElement.innerHTML = document.getElementById('drag-target').innerHTML;
+		var bodyElement = document.getElementsByTagName('body')[0];
+		bodyElement.appendChild(dummyElement);
+		
+		document.getElementById('drag-target').className += 'animating';
+		
+		var targetContent = document.getElementById('drag-target').innerHTML;
+		var sourceContent = this.dragger.originElement.innerHTML;
+		this.dragger.originElement.innerHTML = targetContent;
+		document.getElementById('drag-target').innerHTML = sourceContent;
+		
+		var request = new XMLHttpRequest();
+		request.open('GET', 'swap-ranks.php?racer1=' + document.getElementById('drag-target').getElementsByTagName('div')[1].innerHTML + '&racer2=' +  this.dragger.originElement.getElementsByTagName('div')[1].innerHTML, true);
+		request.onreadystatechange = processCoords;
+		request.send(null);
+		
+		function processCoords() {
+			if(request.readyState == 4 && request.status == 200) {
+				//console.log(request.responseText);
+			}
+		}
+		
+		this.animateTo(this.dragger.element, document.getElementById('drag-target'), function() {
+			document.getElementById('dragging').id = '';
+			document.getElementsByClassName('animating')[0].className = '';
+			// this.dragger.element.parentNode.removeChild(dragger.element);
+			console.log( this );
+			this.dragger.element.style.display = 'none';
+		});
+		
+		this.animateTo(dummyElement, this.dragger.originElement, function() {
+			dummyElement.parentNode.removeChild(dummyElement);
+		});
+	} else {
+		// animate back to original position???
+		this.animateTo(this.dragger.element, this.dragger.originElement, function() {
+			document.getElementById('dragging').id = '';
+			this.dragger.element.parentNode.removeChild(this.dragger.element);
+		});
+	}
+	
+	this.clearTargets();
+	this.isDragging = false;
+	
+	
+	//dragger.element.parentNode.removeChild(dragger.element);
+};
+
+
+MKT.Swapper.prototype.animateTo = function(element, target, callback) {
+	//console.log(element.offsetLeft);
+	//console.log(target.offsetLeft);
+	var animation = setInterval(function() {
+		var distanceX = target.offsetLeft - element.offsetLeft;
+		var distanceY = target.offsetTop - element.offsetTop;
+		var percent = .5;
+		var targetX;
+		var targetY;
+		
+		if(Math.abs(distanceX) > 1 || Math.abs(distanceY) > 1) {
+			//console.log('animate');
+			targetX = element.offsetLeft + (distanceX * percent);
+			targetY = element.offsetTop + (distanceY * percent);
+		} else {
+			targetX = target.offsetLeft;
+			clearInterval(animation);
+			callback();
+		}
+		
+		element.style.left = targetX + 'px';
+		element.style.top = targetY + 'px';
+	}, 50);
+	
+	
+}
+
+
+
 // =======================  ======================= //
 
 var raceData;
@@ -210,92 +310,7 @@ function closeRaceForm(e) {
 	document.getElementById('race-form-modal').style.display = 'none';
 }
 
-function endDrag(e) {
-	this.style.opacity = 1;
-}
 
-
-
-function stopDrag(e) {
-	document.removeEventListener('mousemove', dragRacer);
-	document.removeEventListener('mouseup', stopDrag);
-	if(document.getElementById('drag-target')) {
-		var dummyElement = document.createElement('div');
-		dummyElement.id = 'dummy-element';
-		dummyElement.style.width = document.getElementById('drag-target').getBoundingClientRect().width + 'px';
-		dummyElement.style.top = document.getElementById('drag-target').offsetTop + 'px';
-		dummyElement.style.left = document.getElementById('drag-target').offsetLeft + 'px';
-		dummyElement.innerHTML = document.getElementById('drag-target').innerHTML;
-		var bodyElement = document.getElementsByTagName('body')[0];
-		bodyElement.appendChild(dummyElement);
-		
-		document.getElementById('drag-target').className += 'animating';
-		
-		var targetContent = document.getElementById('drag-target').innerHTML;
-		var sourceContent = dragger.originElement.innerHTML;
-		dragger.originElement.innerHTML = targetContent;
-		document.getElementById('drag-target').innerHTML = sourceContent;
-		
-		var request = new XMLHttpRequest();
-		request.open('GET', 'swap-ranks.php?racer1=' + document.getElementById('drag-target').getElementsByTagName('div')[1].innerHTML + '&racer2=' +  dragger.originElement.getElementsByTagName('div')[1].innerHTML, true);
-		request.onreadystatechange = processCoords;
-		request.send(null);
-		
-		function processCoords() {
-			if(request.readyState == 4 && request.status == 200) {
-				//console.log(request.responseText);
-			}
-		}
-		
-		animateTo(dragger.element, document.getElementById('drag-target'), function() {
-			document.getElementById('dragging').id = '';
-			document.getElementsByClassName('animating')[0].className = '';
-			dragger.element.parentNode.removeChild(dragger.element);
-		});
-		
-		animateTo(dummyElement, dragger.originElement, function() {
-			dummyElement.parentNode.removeChild(dummyElement);
-		});
-	} else {
-		animateTo(dragger.element, dragger.originElement, function() {
-			document.getElementById('dragging').id = '';
-			dragger.element.parentNode.removeChild(dragger.element);
-		});
-	}
-	
-	clearTargets();
-	
-	
-	//dragger.element.parentNode.removeChild(dragger.element);
-}
-
-
-function animateTo(element, target, callback) {
-	//console.log(element.offsetLeft);
-	//console.log(target.offsetLeft);
-	var animation = setInterval(function() {
-		var distanceX = target.offsetLeft - element.offsetLeft;
-		var distanceY = target.offsetTop - element.offsetTop;
-		var percent = .5;
-		var targetX;
-		var targetY;
-		
-		if(Math.abs(distanceX) > 1 || Math.abs(distanceY) > 1) {
-			//console.log('animate');
-			targetX = element.offsetLeft + (distanceX * percent);
-			targetY = element.offsetTop + (distanceY * percent);
-		} else {
-			targetX = target.offsetLeft;
-			clearInterval(animation);
-			callback();
-		}
-		
-		element.style.left = targetX + 'px';
-		element.style.top = targetY + 'px';
-	}, 50);
-	
-	
-}
 
 
 /*

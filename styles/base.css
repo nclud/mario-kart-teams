@@ -1,0 +1,179 @@
+@font-face {
+    font-family: 'NeutraTextBold';
+    src: url('neutratext-bold-webfont.eot');
+    src: url('neutratext-bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('neutratext-bold-webfont.woff') format('woff'),
+         url('neutratext-bold-webfont.ttf') format('truetype'),
+         url('neutratext-bold-webfont.svg#NeutraTextBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+	font-family: "NeutraTextBold", "Lucida Grande", "Lucida Sans", Helvetica, Arial, sans-serif;
+	font-size: 24px;
+}
+
+h1 {
+	font-size: 200px;
+	text-align: center;
+	border-bottom: 5px solid #000;
+	margin-bottom: 30px;
+}
+
+.column {	
+	float: left;
+	width: 30%;
+	margin-right: 2.5%;
+}
+
+@media all and (max-width: 700px) {
+	#columns {
+		margin: 50px 0 !important;
+	}
+	.column {
+		width: 90%;
+		margin: 0 5%;
+	}
+}
+
+.column li,
+#dragger,
+#dummy-element {
+	line-height: 60px;
+	clear: both;
+	height: 60px;
+	padding: 10px;
+	border-bottom: 1px solid #ccc;
+	cursor: move;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+#dragging,
+.animating {
+	background: #eee;
+	-webkit-box-shadow: inset 3px 3px 10px rgba(0, 0, 0, .25);
+	-moz-box-shadow: inset 3px 3px 10px rgba(0, 0, 0, .25);
+	box-shadow: inset 3px 3px 10px rgba(0, 0, 0, .25);
+}
+
+#drag-target {
+	background-color: #eee;
+	-webkit-box-shadow: inset 3px 3px 10px rgba(0, 0, 0, .25);
+	-moz-box-shadow: inset 3px 3px 10px rgba(0, 0, 0, .25);
+	box-shadow: inset 3px 3px 10px rgba(0, 0, 0, .25);
+	/*-webkit-transition: background-color .25s ease-out, box-shadow .25s ease-out;*/
+}
+
+#dragging div,
+.animating div {
+	display: none;
+}
+
+#dragger,
+#dummy-element {
+	position: absolute;
+	z-index: 90;
+	background-color: #fff;
+	border-bottom: none;
+	-webkit-box-shadow: 3px 3px 10px rgba(0, 0, 0, .25);
+	-moz-box-shadow: 3px 3px 10px rgba(0, 0, 0, .25);
+	box-shadow: 3px 3px 10px rgba(0, 0, 0, .25);
+	padding-top: 10px;
+	opacity: .9;
+}
+
+#dragger {
+	z-index: 100;
+}
+
+.column li:hover {
+	background: url(../images/drag-grooves.gif) no-repeat 38px right;
+}
+
+.column li:last-child {
+	border-bottom: none;
+}
+
+.column li div,
+#dragger div,
+#dummy-element div {
+	float: left;
+}
+
+.thumbnail {
+	width: 60px;
+	height: 60px;
+	margin-right: 20px;
+}
+
+#columns {
+	width: 100%;
+	margin: 50px 2.5% 0 2.5%;
+}
+
+#controls {
+	position: absolute;
+	right: 20px;
+	top: 10px;
+}
+
+#race-form-modal {
+	background: #000;
+	width: 400px;
+	height: 400px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -200px;
+	margin-top: -200px;
+	z-index: 100;
+	color: #fff;
+	border-radius: 15px;
+	-webkit-box-shadow: 5px 5px 10px rgba(0, 0, 0, .5);
+	box-shadow: 10px 10px 10px rgba(0, 0, 0, .5);
+	display: none;
+}
+
+#race-form {
+	width: 200px;
+	margin: 60px auto;
+}
+
+#race-form p {
+	margin-bottom: 20px;
+}
+
+#race-form label {
+	width: 50px;
+	display: block;
+	float: left;
+	line-height: 30px;
+}
+
+#race-form select {
+	width: 150px;
+	height: 30px;
+}
+
+#race-form input[type=submit] {
+	width: 100px;
+	height: 30px;
+	display: block;
+	margin: 50px auto;
+}
+
+#race-form-modal #close {
+	position: absolute;
+	right: 20px;
+	top: 10px;
+}
+
+#race-form-modal #close a {
+	color: #fff;
+	font-size: 15px;
+	text-decoration: none;
+}

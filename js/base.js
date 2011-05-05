@@ -101,6 +101,7 @@ MKT.Swapper.prototype.startDrag = function(event) {
 	this.dragger.element.style.top = event.currentTarget.offsetTop + 'px';
 
 	event.currentTarget.id = 'dragging';
+	this.draggingPlayer = event.target;
 
 	document.addEventListener( MKT.cursorMoveEvent, this, false);
 	document.addEventListener( MKT.cursorEndEvent, this, false);
@@ -124,44 +125,43 @@ MKT.Swapper.prototype.dragRacer = function(event) {
 	this.dragger.element.style.left = cursor.clientX - this.dragger.offsetX + 'px';
 	this.dragger.element.style.top = cursor.clientY - this.dragger.offsetY + 'px';
 
-	this.clearTargets();
+	// this.clearTargets();
 	
 	// check drop tragets
 	var dragEl = this.dragger.element,
 			draggerRect = dragEl.getBoundingClientRect(),
 			draggerX = this.dragger.element.offsetLeft + draggerRect.width / 2,
-			draggerY = this.dragger.element.offsetTop + draggerRect.height / 2;
+			draggerY = this.dragger.element.offsetTop + draggerRect.height / 2,
+			hasTarget = false;
 	
 	for(var i = 0, len = this.players.length; i < len; i++) {
 		var player = this.players[i];
 		
 		// if dragger falls inside droppable target
 		if (
+			player !== this.draggingPlayer &&
 			draggerX > player.offsetLeft + 1 &&
 			draggerX < player.offsetLeft + draggerRect.width - 1 &&
 			draggerY > player.offsetTop + 1 &&
 			draggerY < player.offsetTop + draggerRect.height - 1
 		) {
-			if ( player.id !== 'dragging' ) {
-				player.id = 'drag-target';
-				break;
+			// remove previous droptarget
+			if ( this.dropTarget ) {
+				this.dropTarget.removeClassName('drag-target');
 			}
-		}
-		
-	}
-};
-
-
-MKT.Swapper.prototype.clearTargets = function() {
-	if(document.getElementById('drag-target')) {
-		document.getElementById('drag-target').id = '';
-	}
-	var peeps = document.getElementsByTagName('li');
-	for(var i = 0; i < peeps.length; i++) {
-		if(peeps[i].id != 'dragging') {
-			peeps[i].style.opacity = 1;
+			this.dropTarget = player;
+			player.addClassName('drag-target');
+			hasTarget = true;
+			break;
 		}
 	}
+	
+	// if no target was hovered over, remove it
+	if ( !hasTarget && this.dropTarget ) {
+		this.dropTarget.removeClassName('drag-target')
+		this.dropTarget = null;
+	}
+	
 };
 
 

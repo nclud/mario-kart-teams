@@ -166,8 +166,8 @@ function stopDrag(e) {
 
 
 function animateTo(element, target, callback) {
-	console.log(element.offsetLeft);
-	console.log(target.offsetLeft);
+	//console.log(element.offsetLeft);
+	//console.log(target.offsetLeft);
 	var animation = setInterval(function() {
 		var distanceX = target.offsetLeft - element.offsetLeft;
 		var distanceY = target.offsetTop - element.offsetTop;
@@ -176,7 +176,7 @@ function animateTo(element, target, callback) {
 		var targetY;
 		
 		if(Math.abs(distanceX) > 1 || Math.abs(distanceY) > 1) {
-			console.log('animate');
+			//console.log('animate');
 			targetX = element.offsetLeft + (distanceX * percent);
 			targetY = element.offsetTop + (distanceY * percent);
 		} else {

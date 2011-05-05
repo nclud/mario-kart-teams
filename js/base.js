@@ -50,9 +50,13 @@ MKT.EventHandler.prototype.handleEvent = function( event ) {
 MKT.Swapper = function ( players ) {
 
 	this.isDragging = false;
+
+	this.dragger = {
+		element : document.createElement('div')
+	};
+	this.dragger.element.id = 'dragger';
+	document.body.appendChild( this.dragger.element );
 	
-	// this.dragger = document.createElement('div');
-	// this.dragger.id = 'dragger';
 
 	// add listeners for movement
 	for (var i=0, len = players.length; i < len; i++) {
@@ -68,43 +72,54 @@ MKT.Swapper.prototype.handleMousedown = function(event) {
 	this.startDrag(event);
 };
 
-var dragger;
+MKT.Swapper.prototype.handleTouchstart = function(event) {
+	this.startDrag(event);
+};
 
-MKT.Swapper.prototype.startDrag = function(e) {
+MKT.Swapper.prototype.startDrag = function(event) {
 	// don't proceed if already dragging
 	if ( this.isDragging ) {
 		// return;
 	}
 	console.log( 'start dragging' );
 	
-	e.preventDefault();
-	dragger = {
-		element: document.createElement('div'),
-		originElement: e.currentTarget,
-		offsetX: e.touches ? e.touches[0].clientX - e.currentTarget.offsetLeft : e.clientX - e.currentTarget.offsetLeft,
-		offsetY: e.touches ? e.touches[0].clientY - e.currentTarget.offsetTop : e.clientY - e.currentTarget.offsetTop
-	};
-	dragger.element.id = 'dragger';
-	dragger.element.innerHTML = e.target.innerHTML;
-	dragger.element.style.width = e.target.getBoundingClientRect().width + 'px';
-	dragger.element.style.left = e.currentTarget.offsetLeft + 'px';
-	dragger.element.style.top = e.currentTarget.offsetTop + 'px';
-	e.currentTarget.id = 'dragging';
-	var bodyElement = document.getElementsByTagName('body')[0];
-	bodyElement.appendChild(dragger.element);
-	document.addEventListener('mousemove', dragRacer, false);
-	document.addEventListener('mouseup', stopDrag, false);
-	document.addEventListener('touchmove', dragRacer, false);
-	document.addEventListener('touchend', stopDrag, false);
+	event.preventDefault();
+	var cursor = MKT.isTouch ? event.touches[0] : event;
 	
+	this.dragger.originElement = event.currentTarget;
+	this.dragger.offsetX = cursor.clientX - event.currentTarget.offsetLeft;
+	this.dragger.offsetY = cursor.clientY - event.currentTarget.offsetTop;
+	
+	this.dragger.element.innerHTML = event.target.innerHTML;
+	this.dragger.element.style.width = event.target.getBoundingClientRect().width + 'px';
+	this.dragger.element.style.left = event.currentTarget.offsetLeft + 'px';
+	this.dragger.element.style.top = event.currentTarget.offsetTop + 'px';
+
+	event.currentTarget.id = 'dragging';
+
+	document.addEventListener( MKT.cursorMoveEvent, this, false);
+	document.addEventListener( MKT.cursorEndEvent, this, false);
 	
 	this.isDragging = true;
-	// console.log( 'starting drag' );
 	
+};
+
+MKT.Swapper.prototype.handleMousemove = function(event) {
+	this.dragRacer(event);
+};
+
+MKT.Swapper.prototype.handleMousemove = function(event) {
+	this.dragRacer(event);
+};
+
+MKT.Swapper.prototype.dragRacer = function(event) {
 	
-}
+	var cursor = MKT.isTouch ? event.touches[0] : event;
+	this.dragger.element.style.left = cursor.clientX - this.dragger.offsetX + 'px';
+	this.dragger.element.style.top = cursor.clientY - this.dragger.offsetY + 'px';
 
-
+	// checkDropTarget();
+};
 
 
 // =======================  ======================= //
@@ -146,15 +161,7 @@ function endDrag(e) {
 }
 
 function dragRacer(e) {
-	if(e.touches) {
-		dragger.element.style.left = e.touches[0].clientX - dragger.offsetX + 'px';
-		dragger.element.style.top = e.touches[0].clientY - dragger.offsetY + 'px';
-	} else {
-		dragger.element.style.left = e.clientX - dragger.offsetX + 'px';
-		dragger.element.style.top = e.clientY - dragger.offsetY + 'px';
-	}
-	
-	checkDropTarget();
+
 }
 
 function checkDropTarget() {

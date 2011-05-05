@@ -63,6 +63,10 @@ MKT.Swapper = function ( players ) {
 	this.documentBody.appendChild( this.dragger.element );
 	
 	// create dummy proxy element, for player moved out
+	this.dummyElement = document.createElement('div');
+	this.dummyElement.id = 'dummy-element';
+	this.dummyElement.style.display = 'none';
+	this.documentBody.appendChild( this.dummyElement );
 	
 
 	// add listeners for movement
@@ -188,15 +192,12 @@ MKT.Swapper.prototype.stopDrag = function(e) {
 
 
 	if ( this.dropTarget ) {
-		var dummyElement = document.createElement('div');
-		dummyElement.id = 'dummy-element';
-		dummyElement.style.width = this.dropTarget.getBoundingClientRect().width + 'px';
-		dummyElement.style.top = this.dropTarget.offsetTop + 'px';
-		dummyElement.style.left = this.dropTarget.offsetLeft + 'px';
-		dummyElement.innerHTML = this.dropTarget.innerHTML;
+		this.dummyElement.style.width = this.dropTarget.getBoundingClientRect().width + 'px';
+		this.dummyElement.style.top = this.dropTarget.offsetTop + 'px';
+		this.dummyElement.style.left = this.dropTarget.offsetLeft + 'px';
+		this.dummyElement.innerHTML = this.dropTarget.innerHTML;
+		this.dummyElement.style.display = 'block';
 
-		this.documentBody.appendChild(dummyElement);
-		
 		var targetContent = this.dropTarget.innerHTML;
 		var sourceContent = this.draggingPlayer.innerHTML;
 		this.draggingPlayer.innerHTML = targetContent;
@@ -216,14 +217,14 @@ MKT.Swapper.prototype.stopDrag = function(e) {
 		var dragEl = this.dragger.element,
 				dropTarget = this.dropTarget,
 				draggingPlayer = this.draggingPlayer,
-				dummy = dummyElement;
+				dummy = this.dummyElement;
 		
 		this.dropTarget.addClassName('moving');
 		
 		this.animateTo(this.dragger.element, this.dropTarget, function(){
 			dropTarget.removeClassName('moving');
 		});
-		this.animateTo(dummyElement, this.draggingPlayer, function(){
+		this.animateTo(this.dummyElement, this.draggingPlayer, function(){
 			draggingPlayer.removeClassName('moving');
 		});
 	} else {

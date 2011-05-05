@@ -49,6 +49,7 @@ MKT.EventHandler.prototype.handleEvent = function( event ) {
 
 MKT.Swapper = function ( players ) {
 
+	this.players = players;
 	this.isDragging = false;
 
 	this.dragger = {
@@ -59,7 +60,7 @@ MKT.Swapper = function ( players ) {
 	
 
 	// add listeners for movement
-	for (var i=0, len = players.length; i < len; i++) {
+	for (var i=0, len = this.players.length; i < len; i++) {
 		players[i].addEventListener( MKT.cursorStartEvent, this, false);
 	}
 
@@ -114,12 +115,57 @@ MKT.Swapper.prototype.handleMousemove = function(event) {
 
 MKT.Swapper.prototype.dragRacer = function(event) {
 	
+	// position dragger
 	var cursor = MKT.isTouch ? event.touches[0] : event;
 	this.dragger.element.style.left = cursor.clientX - this.dragger.offsetX + 'px';
 	this.dragger.element.style.top = cursor.clientY - this.dragger.offsetY + 'px';
 
-	// checkDropTarget();
+	this.checkDropTarget();
 };
+
+
+MKT.Swapper.prototype.checkDropTarget = function() {
+	// clearTargets();
+	
+	var possibleTargets = [];
+	var largestTarget = {
+		element: null,
+		area: 0
+	};
+
+	var dragEl = this.dragger.element,
+			draggerRect = dragEl.getBoundingClientRect();
+	
+	for(var i = 0, len = this.players.length; i < len; i++) {
+		var player = this.players[i];
+		var itemDistanceX = dragEl.offsetLeft - player.offsetLeft + draggerRect.width;
+		var itemDistanceY = dragEl.offsetTop - player.offsetTop + draggerRect.height;
+		var playerRect = player.getBoundingClientRect();
+		
+		if(itemDistanceX > 0 && itemDistanceX <= playerRect.width * 2) {
+			if(itemDistanceY > 0 && itemDistanceY <= playerRect.height * 2) {
+				possibleTargets.push(player);
+			}			
+		}
+	}
+	
+	for(var j = 0; j < possibleTargets.length; j++) {
+		var target = possibleTargets[j];
+		var targetRect = possibleTargets[j].getBoundingClientRect();
+		var overlapX = targetRect.width - Math.abs(target.offsetLeft - this.dragger.element.offsetLeft);
+		var overlapY = targetRect.height - Math.abs(target.offsetTop - this.dragger.element.offsetTop);
+		var overlapArea = overlapX * overlapY;
+		if(overlapArea > largestTarget.area) {
+			largestTarget = {
+				element: target,
+				area: overlapArea
+			};
+		}
+	}
+	if(largestTarget.element && largestTarget.element.id != 'dragging') {
+		largestTarget.element.id = 'drag-target';
+	}
+}
 
 
 // =======================  ======================= //
@@ -138,14 +184,9 @@ function init() {
 	
 	var swapper = new MKT.Swapper( players );
 	
-  // document.getElementById('new-race-btn').addEventListener('click', addNewRace, false);
-  // document.getElementById('close-btn').addEventListener('click', closeRaceForm, false);
-  // 
-  // 
-  // for(var i = 0; i < peeps.length; i++) {
-  //  peeps[i].addEventListener('mousedown', startDrag, false);
-  //  peeps[i].addEventListener('touchstart', startDrag, false);
-  // }
+  document.getElementById('new-race-btn').addEventListener('click', addNewRace, false);
+  document.getElementById('close-btn').addEventListener('click', closeRaceForm, false);
+
 }
 
 function addNewRace(e) {
@@ -160,46 +201,7 @@ function endDrag(e) {
 	this.style.opacity = 1;
 }
 
-function dragRacer(e) {
 
-}
-
-function checkDropTarget() {
-	clearTargets();
-	
-	var possibleTargets = [];
-	var largestTarget = {
-		element: null,
-		area: 0
-	};
-	
-	var peeps = document.getElementsByTagName('li');
-	for(var i = 0; i < peeps.length; i++) {
-		var itemDistanceX = dragger.element.offsetLeft - peeps[i].offsetLeft + dragger.element.getBoundingClientRect().width;
-		var itemDistanceY = dragger.element.offsetTop - peeps[i].offsetTop + dragger.element.getBoundingClientRect().height;
-		
-		if(itemDistanceX > 0 && itemDistanceX <= peeps[i].getBoundingClientRect().width * 2) {
-			if(itemDistanceY > 0 && itemDistanceY <= peeps[i].getBoundingClientRect().height * 2) {
-				possibleTargets.push(peeps[i]);
-			}			
-		}
-	}
-	
-	for(var j = 0; j < possibleTargets.length; j++) {
-		var overlapX = possibleTargets[j].getBoundingClientRect().width - Math.abs(possibleTargets[j].offsetLeft - dragger.element.offsetLeft);
-		var overlapY = possibleTargets[j].getBoundingClientRect().height - Math.abs(possibleTargets[j].offsetTop - dragger.element.offsetTop);
-		var overlapArea = overlapX * overlapY;
-		if(overlapArea > largestTarget.area) {
-			largestTarget = {
-				element: possibleTargets[j],
-				area: overlapArea
-			};
-		}
-	}
-	if(largestTarget.element && largestTarget.element.id != 'dragging') {
-		largestTarget.element.id = 'drag-target';
-	}
-}
 
 function clearTargets() {
 	if(document.getElementById('drag-target')) {

@@ -52,8 +52,13 @@ h1 {
 	user-select: none;
 }
 
+.column li * {
+  pointer-events: none;
+}
+
 #dragging,
-.animating {
+.animating,
+.dragging {
 	background: #eee;
 	-webkit-box-shadow: inset 3px 3px 10px rgba(0, 0, 0, .25);
 	-moz-box-shadow: inset 3px 3px 10px rgba(0, 0, 0, .25);
@@ -70,7 +75,8 @@ h1 {
 }
 
 #dragging div,
-.animating div {
+.animating div,
+.dragging * {
 	display: none;
 }
 

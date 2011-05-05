@@ -1,6 +1,5 @@
 <?php
 
-
 $myFile = 'racedata.txt';
 $fh = fopen($myFile, 'r+') or die("Can't open file");
 $theData = fread($fh, filesize($myFile));
@@ -64,6 +63,11 @@ $newRanks = implode(',', $ranks);
 $fh = fopen($myFile, 'w') or die("Can't open file");
 fwrite($fh, $newRanks);
 fclose($fh);
+
+if($_GET['position-1']) {
+	$url = 'index.php';
+	header('location:' . $url);
+}
 
 ?>
 

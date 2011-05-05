@@ -1,1 +1,1 @@
-Lauren,Dave,Alex,Wes,Martin,Tom,Brandon,Brian,John
+Brandon,Martin,John,Wes,Tom,Lauren,Brian,Alex,Dave

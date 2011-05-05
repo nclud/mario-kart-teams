@@ -9,41 +9,58 @@ function init() {
 	document.getElementById('new-race-btn').addEventListener('click', addNewRace, false);
 	document.getElementById('close-btn').addEventListener('click', closeRaceForm, false);
 	
-	var peeps = document.getElementsByTagName('li');
-	for(var i = 0; i < peeps.length; i++) {
-		peeps[i].addEventListener('mousedown', startDrag, false);
-		peeps[i].addEventListener('touchstart', startDrag, false);
+	if(document.body.offsetWidth > 700) {
+		var peeps = document.getElementsByTagName('li');
+		for(var i = 0; i < peeps.length; i++) {
+			peeps[i].addEventListener('mousedown', startDrag, false);
+			peeps[i].addEventListener('touchstart', startDrag, false);
+		}
 	}
 }
 
 function addNewRace(e) {
+	var cover = document.createElement('div');
+	cover.id = 'cover';
+	cover.style.backgroundColor = 'rgba(255, 255, 255, .8)';
+	cover.style.position = 'fixed';
+	cover.style.width = '100%';
+	cover.style.height = '100%';
+	cover.style.zIndex = '80';
+	var bodyElement = document.getElementsByTagName('body')[0];
+	bodyElement.appendChild(cover);
+	cover.addEventListener('click', closeRaceForm, false);
+	
 	document.getElementById('race-form-modal').style.display = 'block';
 }
 
 function closeRaceForm(e) {
+	document.getElementById('cover').parentNode.removeChild(document.getElementById('cover'));
+
 	document.getElementById('race-form-modal').style.display = 'none';
 }
 
 function startDrag(e) {
 	e.preventDefault();
-	dragger = {
-		element: document.createElement('div'),
-		originElement: e.currentTarget,
-		offsetX: e.touches ? e.touches[0].clientX - e.currentTarget.offsetLeft : e.clientX - e.currentTarget.offsetLeft,
-		offsetY: e.touches ? e.touches[0].clientY - e.currentTarget.offsetTop : e.clientY - e.currentTarget.offsetTop
-	};
-	dragger.element.id = 'dragger';
-	dragger.element.innerHTML = this.innerHTML;
-	dragger.element.style.width = this.getBoundingClientRect().width + 'px';
-	dragger.element.style.left = e.currentTarget.offsetLeft + 'px';
-	dragger.element.style.top = e.currentTarget.offsetTop + 'px';
-	e.currentTarget.id = 'dragging';
-	var bodyElement = document.getElementsByTagName('body')[0];
-	bodyElement.appendChild(dragger.element);
-	document.addEventListener('mousemove', dragRacer, false);
-	document.addEventListener('mouseup', stopDrag, false);
-	document.addEventListener('touchmove', dragRacer, false);
-	document.addEventListener('touchend', stopDrag, false);
+	if(!dragger.element) {
+		dragger = {
+			element: document.createElement('div'),
+			originElement: e.currentTarget,
+			offsetX: e.touches ? e.touches[0].clientX - e.currentTarget.offsetLeft : e.clientX - e.currentTarget.offsetLeft,
+			offsetY: e.touches ? e.touches[0].clientY - e.currentTarget.offsetTop : e.clientY - e.currentTarget.offsetTop
+		};
+		dragger.element.id = 'dragger';
+		dragger.element.innerHTML = this.innerHTML;
+		dragger.element.style.width = this.getBoundingClientRect().width + 'px';
+		dragger.element.style.left = e.currentTarget.offsetLeft + 'px';
+		dragger.element.style.top = e.currentTarget.offsetTop + 'px';
+		e.currentTarget.id = 'dragging';
+		var bodyElement = document.getElementsByTagName('body')[0];
+		bodyElement.appendChild(dragger.element);
+		document.addEventListener('mousemove', dragRacer, false);
+		document.addEventListener('mouseup', stopDrag, false);
+		document.addEventListener('touchmove', dragRacer, false);
+		document.addEventListener('touchend', stopDrag, false);
+	}
 }
 
 function endDrag(e) {
@@ -133,10 +150,10 @@ function stopDrag(e) {
 		
 		var request = new XMLHttpRequest();
 		request.open('GET', 'swap-ranks.php?racer1=' + document.getElementById('drag-target').getElementsByTagName('div')[1].innerHTML + '&racer2=' +  dragger.originElement.getElementsByTagName('div')[1].innerHTML, true);
-		request.onreadystatechange = processCoords;
+		//request.onreadystatechange = processReturn;
 		request.send(null);
 		
-		function processCoords() {
+		function processReturn() {
 			if(request.readyState == 4 && request.status == 200) {
 				//console.log(request.responseText);
 			}
@@ -146,6 +163,7 @@ function stopDrag(e) {
 			document.getElementById('dragging').id = '';
 			document.getElementsByClassName('animating')[0].className = '';
 			dragger.element.parentNode.removeChild(dragger.element);
+			dragger.element = null;
 		});
 		
 		animateTo(dummyElement, dragger.originElement, function() {
@@ -155,19 +173,15 @@ function stopDrag(e) {
 		animateTo(dragger.element, dragger.originElement, function() {
 			document.getElementById('dragging').id = '';
 			dragger.element.parentNode.removeChild(dragger.element);
+			dragger.element = null;
 		});
 	}
 	
 	clearTargets();
-	
-	
-	//dragger.element.parentNode.removeChild(dragger.element);
 }
 
 
 function animateTo(element, target, callback) {
-	//console.log(element.offsetLeft);
-	//console.log(target.offsetLeft);
 	var animation = setInterval(function() {
 		var distanceX = target.offsetLeft - element.offsetLeft;
 		var distanceY = target.offsetTop - element.offsetTop;
@@ -176,7 +190,6 @@ function animateTo(element, target, callback) {
 		var targetY;
 		
 		if(Math.abs(distanceX) > 1 || Math.abs(distanceY) > 1) {
-			//console.log('animate');
 			targetX = element.offsetLeft + (distanceX * percent);
 			targetY = element.offsetTop + (distanceY * percent);
 		} else {
@@ -187,25 +200,5 @@ function animateTo(element, target, callback) {
 		
 		element.style.left = targetX + 'px';
 		element.style.top = targetY + 'px';
-	}, 50);
-	
-	
+	}, 50);	
 }
-
-
-/*
-
-var request = new XMLHttpRequest();
-request.open("GET", "services/pixelate-image.php?src=" + src + "&diameter=" + (2 * radius) + "&padding=" + padding, true);
-request.onreadystatechange = processCoords;
-request.send(null);
-
-function processCoords() {
-	if(request.readyState == 4 && request.status == 200) {
-		dynamicCoords = JSON.parse(request.responseText);
-		coordsReady = true;
-		draw();
-	}
-}
-
-*/

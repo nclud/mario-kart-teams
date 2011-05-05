@@ -97,7 +97,7 @@ MKT.Swapper.prototype.startDrag = function(event) {
 	var cursor = MKT.isTouch ? event.touches[0] : event;
 
 	this.draggingPlayer = event.currentTarget;
-	this.draggingPlayer.addClassName('dragging');
+	this.draggingPlayer.addClassName('moving');
 
 	this.dragger.offsetX = cursor.clientX - this.draggingPlayer.offsetLeft;
 	this.dragger.offsetY = cursor.clientY - this.draggingPlayer.offsetTop;
@@ -213,17 +213,32 @@ MKT.Swapper.prototype.stopDrag = function(e) {
 			}
 		}
 		
-		this.animateTo(this.dragger.element, this.dropTarget);
-		this.animateTo(dummyElement, this.draggingPlayer);
+		var dragEl = this.dragger.element,
+				dropTarget = this.dropTarget,
+				draggingPlayer = this.draggingPlayer,
+				dummy = dummyElement;
+		
+		this.dropTarget.addClassName('moving');
+		
+		this.animateTo(this.dragger.element, this.dropTarget, function(){
+			dropTarget.removeClassName('moving');
+		});
+		this.animateTo(dummyElement, this.draggingPlayer, function(){
+			draggingPlayer.removeClassName('moving');
+		});
 	} else {
 		// animate back to original position
-		this.animateTo(this.dragger.element, this.draggingPlayer);
+		var dragEl = this.dragger.element,
+				draggingPlayer = this.draggingPlayer;
+		this.animateTo(this.dragger.element, this.draggingPlayer, function(){
+			draggingPlayer.removeClassName('moving');
+		});
 	}
 	
 	this.clearDropTarget();
 	this.isDragging = false;
 	
-	this.draggingPlayer.removeClassName('dragging');
+	// this.draggingPlayer.removeClassName('dragging');
 	this.draggingPlayer = null
 	
 	
@@ -235,10 +250,24 @@ MKT.Swapper.prototype.animateTo = function( element, target, callback ) {
 	element.addClassName('animating');
 	element.style.left = target.offsetLeft + 'px';
 	element.style.top = target.offsetTop + 'px';
+
+	var self = this;
 	
-	element.addEventListener( 'webkitTransitionEnd', this, false );
-	element.addEventListener( 'oTransitionEnd', this, false );
-	element.addEventListener( 'transitionend', this, false );
+	var transEnd = function ( event ) {
+		if ( callback ) {
+			callback();
+		}
+		console.log( 'trans ended', event.target );
+		event.target.style.display = 'none';
+		event.target.removeClassName('animating');
+		event.target.removeEventListener( 'webkitTransitionEnd', self, false );
+		event.target.removeEventListener( 'oTransitionEnd', self, false );
+		event.target.removeEventListener( 'transitionend', self, false );
+	}
+	
+	element.addEventListener( 'webkitTransitionEnd', transEnd, false );
+	element.addEventListener( 'oTransitionEnd', transEnd, false );
+	element.addEventListener( 'transitionend', transEnd, false );
 
 	// element.style.display = 'none';
 };
@@ -254,11 +283,6 @@ MKT.Swapper.prototype.handleOTransitionEnd = function(event) {
 };
 
 MKT.Swapper.prototype.transitionEnded = function(event) {
-	event.target.removeClassName('animating');
-	event.target.style.display = 'none';
-	event.target.removeEventListener( 'webkitTransitionEnd', this, false );
-	event.target.removeEventListener( 'oTransitionEnd', this, false );
-	event.target.removeEventListener( 'transitionend', this, false );
 };
 
 

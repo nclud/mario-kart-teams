@@ -253,7 +253,11 @@ MKT.Swapper.prototype.startDrag = function(event) {
 	this.dragger.element.style.display = 'block';
 	
 	event.preventDefault();
-	var cursor = MKT.isTouch ? event.touches[0] : event;
+	var cursor = MKT.isTouch ? event.changedTouches[0] : event;
+	
+	if ( MKT.isTouch ) {
+		this.touchIdentifier = cursor.identifier;
+	}
 
 	this.draggingPlayer = event.currentTarget;
 	this.draggingPlayer.addClassName('moving');
@@ -286,14 +290,20 @@ MKT.Swapper.prototype.handleMousemove = function(event) {
 };
 
 MKT.Swapper.prototype.handleTouchmove = function(event) {
-	this.dragRacer(event);
+	// only trigger drag if touch is the same one that
+	// started the drag in the first place
+	for ( var i=0, len = event.changedTouches.length; i < len; i++ ) {
+		var touch = event.changedTouches[i]
+		if ( touch.identifier === this.touchIdentifier ) {
+			this.dragRacer(touch);
+		}
+	}
+
 };
 
-MKT.Swapper.prototype.dragRacer = function(event) {
+MKT.Swapper.prototype.dragRacer = function(cursor) {
 	
 	// position dragger
-	var cursor = MKT.isTouch ? event.touches[0] : event;
-	
 	this.positionDragger( cursor );
 
 	// check drop tragets
@@ -341,11 +351,18 @@ MKT.Swapper.prototype.handleMouseup = function(event) {
 };
 
 MKT.Swapper.prototype.handleTouchend = function(event) {
-	this.stopDrag(event);
+	// only trigger stopDrag if touch is the same one that
+	// started the drag in the first place
+	for ( var i=0, len = event.changedTouches.length; i < len; i++ ) {
+		var touch = event.changedTouches[i]
+		if ( touch.identifier === this.touchIdentifier ) {
+			this.stopDrag(touch);
+		}
+	}
 };
 
 
-MKT.Swapper.prototype.stopDrag = function(e) {
+MKT.Swapper.prototype.stopDrag = function(cursor) {
   // console.log( 'stopping drag' );
 
 	document.removeEventListener( MKT.cursorMoveEvent, this, false);
@@ -399,11 +416,8 @@ MKT.Swapper.prototype.stopDrag = function(e) {
 	this.clearDropTarget();
 	this.isDragging = false;
 	
-	// this.draggingPlayer.removeClassName('dragging');
 	this.draggingPlayer = null
 	
-	
-	//dragger.element.parentNode.removeChild(dragger.element);
 };
 
 

@@ -27,16 +27,6 @@ h1 {
 	margin-right: 2.5%;
 }
 
-@media all and (max-width: 700px) {
-	#columns {
-		margin: 0 !important;
-	}
-	.column {
-		width: 90%;
-		margin: 0 5%;
-	}
-}
-
 .column li,
 #dragger,
 #dummy-element {
@@ -193,18 +183,26 @@ h1 {
 
 @media all and (max-width: 700px) {
 	#columns {
-		margin: 50px 0 !important;
+		margin: 0px 0 !important;
 	}
 	.column {
-		width: 90%;
-		margin: 0 5%;
+		width: 80%;
+		margin: 0 5% 10px 60px;
+/*    position: relative;*/
 	}
 	
 	h1 {
 		font-size: 40px;
 		text-align: center;
-		border-bottom: 2px solid #000;
+		border-right: 2px solid #000;
 		margin-bottom: 5px;
+		position: absolute;
+		height: 150px;
+		line-height: 150px;
+		border-bottom: 0;
+		width: 40px;
+		text-align: center;
+		left: 10px;
 	}
 	
 	.column li,

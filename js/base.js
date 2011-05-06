@@ -169,11 +169,22 @@ MKT.cursorEndEvent = MKT.isTouch ? 'touchend' : 'mouseup';
 
 // ======================= Global namespace ===================== //
 
-MLT.positionAbs = function()
+MKT.positionAbs = function( elem, x, y ) {
+  elem.style.left = x + 'px';
+  elem.style.top = y + 'px';
+};
 
-MKT.position( elem, x, y ) {
-	
-}
+MKT.translate = function( elem, x, y ) {
+  elem.style[ transformProp ] = 'translate(' + x + 'px, ' + y + 'px)';
+};
+
+MKT.translate3d = function( elem, x, y ) {
+  elem.style[ transformProp ] = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
+};
+
+
+MKT.position = Modernizr.csstransforms3d ? MKT.translate3d :
+  ( Modernizr.csstransforms ? MKT.translate : MKT.positionAbs );
 
 // ======================= EventHandler ======================= //
 
@@ -244,16 +255,15 @@ MKT.Swapper.prototype.startDrag = function(event) {
 	this.draggingPlayer = event.currentTarget;
 	this.draggingPlayer.addClassName('moving');
 
-	this.dragger.offsetX = cursor.clientX - this.draggingPlayer.offsetLeft;
-	this.dragger.offsetY = cursor.clientY - this.draggingPlayer.offsetTop;
+	this.dragger.offsetX = cursor.pageX - this.draggingPlayer.offsetLeft;
+	this.dragger.offsetY = cursor.pageY - this.draggingPlayer.offsetTop;
 	
 	this.playerRect = this.draggingPlayer.getBoundingClientRect();
 	
 	this.dragger.element.innerHTML = this.draggingPlayer.innerHTML;
 	this.dragger.element.style.width = this.playerRect.width + 'px';
-	this.dragger.element.style.left = this.draggingPlayer.offsetLeft + 'px';
-	this.dragger.element.style.top = this.draggingPlayer.offsetTop + 'px';
 
+  this.positionDragger( cursor )
 
 	document.addEventListener( MKT.cursorMoveEvent, this, false);
 	document.addEventListener( MKT.cursorEndEvent, this, false);
@@ -261,6 +271,12 @@ MKT.Swapper.prototype.startDrag = function(event) {
 	this.isDragging = true;
 	
 };
+
+MKT.Swapper.prototype.positionDragger = function(cursor) {
+  this.dragger.x = cursor.pageX - this.dragger.offsetX,
+  this.dragger.y = cursor.pageY - this.dragger.offsetY;
+  MKT.position( this.dragger.element, this.dragger.x, this.dragger.y );
+}
 
 MKT.Swapper.prototype.handleMousemove = function(event) {
 	this.dragRacer(event);
@@ -274,13 +290,13 @@ MKT.Swapper.prototype.dragRacer = function(event) {
 	
 	// position dragger
 	var cursor = MKT.isTouch ? event.touches[0] : event;
-	this.dragger.element.style.left = cursor.clientX - this.dragger.offsetX + 'px';
-	this.dragger.element.style.top = cursor.clientY - this.dragger.offsetY + 'px';
+	
+	this.positionDragger( cursor );
 
 	// check drop tragets
 	var dragEl = this.dragger.element,
-			draggerX = this.dragger.element.offsetLeft + this.playerRect.width / 2,
-			draggerY = this.dragger.element.offsetTop + this.playerRect.height / 2,
+			draggerX = this.dragger.x + this.playerRect.width / 2,
+			draggerY = this.dragger.y + this.playerRect.height / 2,
 			hasTarget = false;
 	
 	for(var i = 0, len = this.players.length; i < len; i++) {
@@ -335,8 +351,7 @@ MKT.Swapper.prototype.stopDrag = function(e) {
 
 	if ( this.dropTarget ) {
 		this.dummyElement.style.width = this.dropTarget.getBoundingClientRect().width + 'px';
-		this.dummyElement.style.top = this.dropTarget.offsetTop + 'px';
-		this.dummyElement.style.left = this.dropTarget.offsetLeft + 'px';
+		MKT.position( this.dummyElement, this.dropTarget.offsetLeft, this.dropTarget.offsetTop );
 		this.dummyElement.innerHTML = this.dropTarget.innerHTML;
 		this.dummyElement.style.display = 'block';
 
@@ -391,8 +406,7 @@ MKT.Swapper.prototype.stopDrag = function(e) {
 
 MKT.Swapper.prototype.animateTo = function( element, target, callback ) {
 	element.addClassName('animating');
-	element.style.left = target.offsetLeft + 'px';
-	element.style.top = target.offsetTop + 'px';
+	MKT.position( element, target.offsetLeft, target.offsetTop );
 
 	var self = this;
 	

@@ -167,7 +167,7 @@ MKT.cursorStartEvent = MKT.isTouch ? 'touchstart' : 'mousedown';
 MKT.cursorMoveEvent = MKT.isTouch ? 'touchmove' : 'mousemove';
 MKT.cursorEndEvent = MKT.isTouch ? 'touchend' : 'mouseup';
 
-// ======================= Global namespace ===================== //
+// ======================= Positioning ===================== //
 
 MKT.positionAbs = function( elem, x, y ) {
   elem.style.left = x + 'px';
@@ -188,8 +188,11 @@ MKT.position = Modernizr.csstransforms3d ? MKT.translate3d :
 
 // ======================= EventHandler ======================= //
 
+// allows 'this' to be used as an event listener
 MKT.EventHandler = function() {};
 
+// will trigger corresponding method to event type
+// i.e. click -> handleClick()
 MKT.EventHandler.prototype.handleEvent = function( event ) {
 	 var handlerName = 'handle' + event.type.charAt(0).toUpperCase() + event.type.substr(1);
 	 if ( this[ handlerName ] ) {
@@ -244,7 +247,7 @@ MKT.Swapper.prototype.startDrag = function(event) {
 	if ( this.isDragging ) {
 		return;
 	}
-	console.log( 'start dragging' );
+  // console.log( 'start dragging' );
 	
 	
 	this.dragger.element.style.display = 'block';
@@ -343,7 +346,7 @@ MKT.Swapper.prototype.handleTouchend = function(event) {
 
 
 MKT.Swapper.prototype.stopDrag = function(e) {
-	console.log( 'stopping drag' );
+  // console.log( 'stopping drag' );
 
 	document.removeEventListener( MKT.cursorMoveEvent, this, false);
 	document.removeEventListener( MKT.cursorEndEvent, this, false);

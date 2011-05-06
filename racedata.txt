@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 John,Dave,Lauren,Alex,Tom,Brandon,Wes,Brian,Martin
+=======
+Brandon,Martin,John,Wes,Tom,Lauren,Brian,Alex,Dave
+>>>>>>> 5e1918d4bf51f89d3e1c4e4155206e25ded99121

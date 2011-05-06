@@ -223,7 +223,6 @@ MKT.Swapper = function ( players ) {
 	this.dummyElement.style.display = 'none';
 	this.documentBody.appendChild( this.dummyElement );
 	
-
 	// add listeners for movement
 	for (var i=0, len = this.players.length; i < len; i++) {
 		players[i].addEventListener( MKT.cursorStartEvent, this, false);
@@ -481,11 +480,23 @@ function init() {
 }
 
 function addNewRace(e) {
+	var cover = document.createElement('div');
+	cover.id = 'cover';
+	cover.style.backgroundColor = 'rgba(255, 255, 255, .8)';
+	cover.style.position = 'fixed';
+	cover.style.width = '100%';
+	cover.style.height = '100%';
+	cover.style.zIndex = '80';
+	var bodyElement = document.getElementsByTagName('body')[0];
+	bodyElement.appendChild(cover);
+	cover.addEventListener('click', closeRaceForm, false);
+	
 	document.getElementById('race-form-modal').style.display = 'block';
 }
 
 function closeRaceForm(e) {
+	document.getElementById('cover').parentNode.removeChild(document.getElementById('cover'));
+
 	document.getElementById('race-form-modal').style.display = 'none';
 }
-
 

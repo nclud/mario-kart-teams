@@ -113,6 +113,18 @@ h1 {
 	margin-right: 20px;
 }
 
+.thumbnail img {
+	width: 100%;
+	display: block;
+}
+
+#a-team li:first-child {
+	-webkit-box-shadow: 0 0 20px yellow;
+	   -moz-box-shadow: 0 0 20px yellow;
+	     -o-box-shadow: 0 0 20px yellow;
+	        box-shadow: 0 0 20px yellow;
+}
+
 #columns {
 	width: 100%;
 	margin: 0 2.5%;

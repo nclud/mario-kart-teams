@@ -176,15 +176,14 @@ if($_GET['position-1']) {
 				<div class="thumbnail"><img src="images/<?php echo $ranks[2]; ?>.jpg" /></div>
 				<div class="player-details"><?php echo $ranks[2]; ?></div>
 			</li>
-		</ul>
+			<li>
+				<div class="thumbnail"><img src="images/<?php echo $ranks[3]; ?>.jpg" /></div>
+				<div class="player-details"><?php echo $ranks[3]; ?></div>
+			</li>		</ul>
 	</div>
 	<div id="b-team" class="column">
 		<h1>B</h1>
 		<ul>
-			<li>
-				<div class="thumbnail"><img src="images/<?php echo $ranks[3]; ?>.jpg" /></div>
-				<div class="player-details"><?php echo $ranks[3]; ?></div>
-			</li>
 			<li>
 				<div class="thumbnail"><img src="images/<?php echo $ranks[4]; ?>.jpg" /></div>
 				<div class="player-details"><?php echo $ranks[4]; ?></div>
@@ -193,23 +192,27 @@ if($_GET['position-1']) {
 				<div class="thumbnail"><img src="images/<?php echo $ranks[5]; ?>.jpg" /></div>
 				<div class="player-details"><?php echo $ranks[5]; ?></div>
 			</li>
+			<li>
+				<div class="thumbnail"><img src="images/<?php echo $ranks[6]; ?>.jpg" /></div>
+				<div class="player-details"><?php echo $ranks[6]; ?></div>
+			</li>
 		</ul>
 	</div>
 	<div id="c-team" class="column">
 		<h1>C</h1>
 		<ul>
 			<li>
-				<div class="thumbnail"><img src="images/<?php echo $ranks[6]; ?>.jpg" /></div>
-				<div class="player-details"><?php echo $ranks[6]; ?></div>
-			</li>
-			<li>
 				<div class="thumbnail"><img src="images/<?php echo $ranks[7]; ?>.jpg" /></div>
 				<div class="player-details"><?php echo $ranks[7]; ?></div>
 			</li>
-			<li>
-				<div class="thumbnail"><img src="images/<?php echo $ranks[8]; ?>.jpg" /></div>
-				<div class="player-details"><?php echo $ranks[8]; ?></div>
-			</li>
+      <li>
+        <div class="thumbnail"><img src="images/<?php echo $ranks[8]; ?>.jpg" /></div>
+        <div class="player-details"><?php echo $ranks[8]; ?></div>
+      </li>
+      <li>
+        <div class="thumbnail"><img src="images/<?php echo $ranks[9]; ?>.jpg" /></div>
+        <div class="player-details"><?php echo $ranks[9]; ?></div>
+      </li>
 		</ul>
 	</div>
 </div>
